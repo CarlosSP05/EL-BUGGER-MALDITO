@@ -56,6 +56,6 @@ code
 
 ## 📄 Documentación
 
-📎 PDF aquí -> 
+📎 PDF aquí -> https://github.com/CarlosSP05/EL-BUGGER-MALDITO/blob/main/Tarea%20de%20Halloween_%20%E2%80%9CEL%20BUGGER%20MALDITO%E2%80%9D%20%20%20JES%C3%9AS%20MAC%C3%8DAS%20CARLOS%20S%C3%81NCHEZ.pdf
 
 ---
