@@ -181,7 +181,7 @@
     if(master) master.gain.value = muted?0:0.3;
   }
 
-  // ======== UTIL ========
+  //  UTIL 
   function write(line, cls=''){
     const p = document.createElement('div');
     p.innerHTML = cls?`<span class="${cls}">${line}</span>`:line;
@@ -191,7 +191,7 @@
   function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
   const vibrate = (ms)=> { if(navigator.vibrate) navigator.vibrate(ms); };
 
-  // ======== SCRIPT DE EXPERIENCIA ========
+  //  SCRIPT DE EXPERIENCIA 
   async function run(){
     running = true; intro.style.display='none'; screen.innerHTML='';
     if(!accessible) flash.classList.remove('on');
@@ -272,7 +272,7 @@
 
   function restart(){ modal.classList.remove('show'); intro.style.display='grid'; screen.innerHTML=''; }
 
-  // ======== Eventos globales ========
+  //  Eventos globales 
   startBtn.addEventListener('click', run);
   document.addEventListener('keydown', (e)=>{
     if(e.code==='Space' && !running){ e.preventDefault(); run(); }
