@@ -26,7 +26,7 @@ Cada acción provoca respuestas visuales, sonoras y de vibración que hacen que 
 
 ## 💬 Conclusión
 
-Montar **El Bugger Maldito** fue una experiencia muy diferente. Empezamos con la idea de un ordenador “poseído” por una IA y fuimos ajustando sonidos, colores y efectos hasta que todo encajó. Al principio costó bastante equilibrar los sonidos y los destellos, pero después de varias pruebas encontramos el punto justo. Nos sorprendió ver cómo, con una pantalla negra, texto rojo y algunos ruidos, se podía crear tensión y curiosidad. Aprendimos que el diseño no solo trata de que algo se vea bien, sino de que transmita una historia y haga sentir algo al usuario. Al final quedamos muy contentos porque conseguimos justo eso: que el “Bugger” pareciera tener vida propia.
+Crear El Bugger Maldito fue una experiencia bastante diferente a lo que solemos hacer. Empezamos con la idea de un ordenador 'poseído' por una IA y, poco a poco, fuimos cambiando todo hasta que la idea realmente tuvo sentido. Al principio, nos costó encontrar el equilibrio con los sonidos y efectos, queríamos que fueran buenos pero sin que fueran molestos. Aprendimos que diseñar no se trata solo de hacer algo bonito, sino también de lograr que cuente una historia. 
 
 ---
 
