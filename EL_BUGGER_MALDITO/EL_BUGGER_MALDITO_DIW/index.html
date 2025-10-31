@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EL BUGGER MALDITO — Estación DIW</title>
+  <meta name="theme-color" content="#000000" />
+  <style>
+    :root {
+      --bg: #050505;
+      --fg: #e6e6e6;
+      --accent: #ff2a2a;
+      --ok: #00ffa6;
+      --warn: #ffd400;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    body { display: grid; place-items: center; overflow: hidden; }
+
+    /* Pantalla de inicio */
+    .intro { position: absolute; inset: 0; display: grid; place-items: center; gap: 1rem; background: radial-gradient(ellipse at center, #0c0c0c 0%, #000 70%); z-index: 5; }
+    .title { font-size: clamp(28px, 5vw, 64px); letter-spacing: 0.06em; text-transform: uppercase; text-align: center; }
+    .glitch { position: relative; display: inline-block; }
+    .glitch::before, .glitch::after { content: attr(data-text); position: absolute; left: 0; top: 0; opacity: .7; clip-path: inset(0 0 0 0); }
+    .glitch::before { transform: translate(-2px, 0); color: #00ffff; animation: glitch 2s infinite linear alternate-reverse; }
+    .glitch::after  { transform: translate(2px, 0); color: #ff0033; animation: glitch 1.4s infinite linear alternate; }
+    @keyframes glitch { 0%{clip-path: inset(0 0 80% 0)} 10%{clip-path: inset(10% 0 60% 0)} 20%{clip-path: inset(40% 0 20% 0)} 30%{clip-path: inset(80% 0 0 0)} 40%{clip-path: inset(30% 0 30% 0)} 50%{clip-path: inset(0 0 80% 0)} 60%{clip-path: inset(10% 0 60% 0)} 70%{clip-path: inset(40% 0 20% 0)} 80%{clip-path: inset(80% 0 0 0)} 100%{clip-path: inset(0 0 0 0)} }
+
+    .btn { border: 2px solid var(--accent); padding: .8rem 1.4rem; background: transparent; color: var(--fg); text-transform: uppercase; letter-spacing: .12em; cursor: pointer; position: relative; }
+    .btn:focus-visible { outline: 3px solid var(--warn); outline-offset: 3px; }
+    .btn:hover::after { content: "▶"; position: absolute; right: -.9rem; animation: blink 1s steps(1,end) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Terminal */
+    .wrap { width: min(1050px, 94vw); height: min(680px, 86vh); border: 1px solid #222; border-radius: 12px; overflow: hidden; background: #040404; position: relative; box-shadow: 0 0 40px #000 inset, 0 0 80px #0a0a0a; }
+    .topbar { display: flex; align-items: center; gap: .6rem; padding: .5rem .8rem; background: linear-gradient(#0b0b0b,#060606); border-bottom: 1px solid #141414; }
+    .dot { width: 12px; height: 12px; border-radius: 999px; }
+    .dot.red{ background: #ff5f56;} .dot.yellow{background:#ffbd2e;} .dot.green{background:#27c93f;}
+    .titlebar { margin-left: .5rem; color: #bdbdbd; font-size: .9rem; }
+
+    .screen { position: absolute; inset: 36px 0 0 0; padding: 1rem; overflow: auto; font-size: clamp(14px, 1.7vw, 18px); line-height: 1.6; }
+    .prompt { color: var(--ok); }
+    .error { color: var(--accent); }
+    .warn { color: var(--warn); }
+    .user-in { background: #0c0c0c; padding: .2rem .4rem; border-radius: 6px; border: 1px solid #181818; }
+    .cursor { display:inline-block; width: .6rem; height: 1rem; background: var(--fg); animation: blink 1s steps(1,end) infinite; vertical-align: -2px; }
+
+    /* Ruido y flash */
+    .noise { pointer-events: none; position: absolute; inset: 0; background-image: repeating-conic-gradient(from 0deg,#000 0% 2%,#0a0a0a 0% 4%); mix-blend-mode: soft-light; opacity: .05; animation: tremor 120ms infinite; }
+    @keyframes tremor { 0%{transform: translate(0,0)} 25%{transform: translate(0,1px)} 50%{transform: translate(1px,0)} 75%{transform: translate(-1px,0)} 100%{transform: translate(0,-1px)} }
+    .flash { position: fixed; inset: 0; background: rgba(255,0,0,.12); opacity: 0; transition: opacity .2s; pointer-events: none; }
+    .flash.on { opacity: .7; mix-blend-mode: screen; }
+
+    /* Modal Final */
+    .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.7); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+    .modal.show { opacity: 1; pointer-events: auto; }
+    .card { width: min(560px, 92vw); background: #0e0e0e; border: 1px solid #262626; border-radius: 14px; padding: 1.2rem; box-shadow: 0 0 40px #000; }
+    .card h2 { margin-top: 0; font-size: 1.4rem; }
+    .row { display: flex; gap: .8rem; flex-wrap: wrap; }
+    .card .btn { border-color: var(--ok); }
+
+    /* Panel ADMIN */
+    .admin { position: fixed; right: 12px; bottom: 12px; width: min(520px, 95vw); max-height: 70vh; background: #101010; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1rem; box-shadow: 0 0 30px #000; transform: translateY(120%); transition: transform .25s; z-index: 20; }
+    .admin.show { transform: translateY(0); }
+    .admin h3 { margin: .2rem 0 .6rem; }
+    .admin label { display:block; margin:.4rem 0 .2rem; }
+    .admin input[type="number"], .admin input[type="text"] { width: 100%; padding:.5rem; background:#0a0a0a; color:#eee; border:1px solid #242424; border-radius: 8px; }
+    .admin small { color:#a5a5a5; }
+
+    /* Accesibilidad: preferencia de menos movimiento */
+    @media (prefers-reduced-motion: reduce) {
+      .noise { animation: none; }
+      .glitch::before, .glitch::after { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Intro -->
+  <div class="intro" role="dialog" aria-label="Pantalla de inicio">
+    <div class="title" aria-live="polite">
+      <span class="glitch" data-text="EL BUGGER MALDITO" aria-hidden="true">EL BUGGER MALDITO</span>
+      <div class="sr-only">El Bugger Maldito — experiencia interactiva</div>
+    </div>
+    <button class="btn" id="start" aria-label="Iniciar purga">Iniciar purga</button>
+    <p style="opacity:.7;max-width:640px;text-align:center">La IA de laboratorio ha tomado el control. Intenta expulsarla, pero recuerda: <em>el sistema miente</em>.</p>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div class="wrap" aria-live="polite" aria-label="Terminal de control">
+    <div class="topbar" aria-hidden="true">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+      <div class="titlebar">LAB-NODE: BUGGER_CORE v13.66</div>
+    </div>
+    <div class="screen" id="screen"></div>
+    <div class="noise" aria-hidden="true"></div>
+  </div>
+
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <!-- Modal final con enlace a Google Forms -->
+  <div class="modal" id="modal">
+    <div class="card" role="dialog" aria-label="Encuesta de evaluación">
+      <h2>La sesión ha terminado… o eso <span class="warn">cree</span> el sistema</h2>
+      <p>Por favor, evalúa esta estación. Tu feedback alimentará (o calmará) al Bugger.</p>
+      <div class="row">
+        <a class="btn" id="formsBtn" href="#" target="_blank" rel="noopener">Abrir encuesta</a>
+        <button class="btn" id="restart">Reiniciar</button>
+      </div>
+      <small id="formsNote"></small>
+    </div>
+  </div>
+
+  <!-- Panel ADMIN -->
+  <div class="admin" id="admin" aria-label="Panel de configuración">
+    <h3>ADMIN — Estación "El Bugger"</h3>
+    <label>Duración en segundos (auto-fin):
+      <input id="dur" type="number" min="20" max="600" value="180" />
+    </label>
+    <label>Enlace de Google Forms (TODO: FORMS_URL):
+      <input id="forms" type="text" placeholder="https://forms.gle/tu-enlace" />
+    </label>
+    <label>Mensaje de bienvenida:
+      <input id="msg" type="text" value="Sistema comprometido. Usuario autorizado requerido." />
+    </label>
+    <small>Atajos: [A] abrir/cerrar · [M] mute · [F] flash · [ESC] modo accesible</small>
+  </div>
+
+<script>
+(() => {
+  const $ = (s)=>document.querySelector(s);
+  const screen = $('#screen');
+  const intro = document.querySelector('.intro');
+  const flash = $('#flash');
+  const modal = $('#modal');
+  const startBtn = $('#start');
+  const formsBtn = $('#formsBtn');
+  const formsNote = $('#formsNote');
+  const restartBtn = $('#restart');
+  const admin = $('#admin');
+  const durInput = $('#dur');
+  const formsInput = $('#forms');
+  const msgInput = $('#msg');
+
+  let running = false;
+  let muted = false;
+  let accessible = false;
+  let timer = null;
+
+  // ======== AUDIO (Web Audio API) ========
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let ctx, master, humOsc, noiseNode;
+
+  function initAudio(){
+    if(ctx) return;
+    ctx = new AudioCtx();
+    master = ctx.createGain(); master.gain.value = 0.3; master.connect(ctx.destination);
+    // HUM grave
+    humOsc = ctx.createOscillator(); humOsc.type = 'sawtooth'; humOsc.frequency.value = 42; 
+    const humGain = ctx.createGain(); humGain.gain.value = 0.06; humOsc.connect(humGain).connect(master); humOsc.start();
+    // Ruido
+    const bufferSize = 2 * ctx.sampleRate;
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++){ data[i] = Math.random()*2-1; }
+    noiseNode = ctx.createBufferSource(); noiseNode.buffer = noiseBuffer; noiseNode.loop = true;
+    const noiseGain = ctx.createGain(); noiseGain.gain.value = 0.02; noiseNode.connect(noiseGain).connect(master); noiseNode.start();
+  }
+
+  function beep(freq=680, dur=0.09, vol=0.2){
+    if(!ctx) return;
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type='square'; o.frequency.value=freq; g.gain.value=vol; o.connect(g).connect(master); o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
+    o.stop(ctx.currentTime+dur);
+  }
+
+  function setMute(m){
+    muted = m;
+    if(master) master.gain.value = muted?0:0.3;
+  }
+
+  // ======== UTIL ========
+  function write(line, cls=''){
+    const p = document.createElement('div');
+    p.innerHTML = cls?`<span class="${cls}">${line}</span>`:line;
+    screen.appendChild(p);
+    screen.scrollTop = screen.scrollHeight;
+  }
+  function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  const vibrate = (ms)=> { if(navigator.vibrate) navigator.vibrate(ms); };
+
+  // ======== SCRIPT DE EXPERIENCIA ========
+  async function run(){
+    running = true; intro.style.display='none'; screen.innerHTML='';
+    if(!accessible) flash.classList.remove('on');
+    initAudio(); if(muted) setMute(true);
+
+    write('> Iniciando terminal segura…'); beep(520,0.12); await wait(400);
+    write('> Comprobando integridad…'); await wait(500);
+    write('[OK] Kernel 3.13 — canales aislados', 'prompt'); await wait(300);
+    write('[ALERTA] Anomalía detectada: BUGGER_CORE en memoria', 'error'); beep(150,0.2); vibrate(50);
+    await wait(500);
+    write(`${msgInput.value}`); await wait(700);
+
+    // Entrada falsa con cursor
+    const inputWrap = document.createElement('div');
+    inputWrap.innerHTML = '<span class="prompt">usuario@lab:</span> <span class="user-in" aria-label="Entrada de comandos" contenteditable="true" role="textbox" spellcheck="false"></span> <span class="cursor"></span>';
+    screen.appendChild(inputWrap); const editable = inputWrap.querySelector('.user-in'); editable.focus();
+
+    editable.addEventListener('keydown', async (e)=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const cmd = editable.textContent.trim().toLowerCase();
+        write(`$ ${cmd}`);
+        editable.textContent='';
+        handleCmd(cmd);
+      }
+    });
+
+    // Auto-fin por duración
+    clearTimeout(timer);
+    timer = setTimeout(end, (parseInt(durInput.value)||180)*1000);
+  }
+
+  async function handleCmd(cmd){
+    switch(true){
+      case /^help$/.test(cmd):
+        write('Comandos: help, scan, purge, status, code, exit'); beep(); break;
+      case /^status$/.test(cmd):
+        write('Memoria: 87% comprometida'); write('Puertos: 666, 1312 abiertos'); write('Módulos corruptos: ui.glitch, i/o.hum'); beep(420,0.08); break;
+      case /^scan$/.test(cmd):
+        for(let i=0;i<6;i++){ await wait(200); write(`escaneando sector ${i}…`);} 
+        write('> entidad: BUGGER_CORE :: [NO EXPULSABLE]', 'error'); vibrate(120); beep(180,0.18); break;
+      case /^purge$/.test(cmd):
+        write('Intentando purga…'); await wait(500);
+        write('…'); await wait(400);
+        write('La purga ha fallado. Recurso protegido por BUGGER.', 'error'); flash.classList.add('on'); vibrate([50,50,50,200]); beep(120,0.25); await wait(300); flash.classList.remove('on'); break;
+      case /^code$/.test(cmd):
+        write('Introduce clave de 4 dígitos (pista: 1031):'); break;
+      case /^(\d{4})$/.test(cmd):
+        if(cmd==='1031'){ write('Clave aceptada. Reescribiendo permisos…', 'prompt'); beep(740,0.16); await wait(600); jumpscare(); }
+        else { write('Clave incorrecta. BUGGER aprende de ti.', 'warn'); beep(220,0.1); }
+        break;
+      case /^exit$/.test(cmd): end(); break;
+      default:
+        write('Comando no reconocido. help para ayuda.'); beep(300,0.08);
+    }
+  }
+
+  async function jumpscare(){
+    // Efecto sorpresa breve pero contundente
+    document.body.style.filter='contrast(150%) saturate(130%)';
+    flash.classList.add('on'); vibrate([30,60,30,300]);
+    for(let i=0;i<6;i++){ beep(200+i*40,0.07,0.35); await wait(80);} 
+    await wait(350); flash.classList.remove('on'); document.body.style.filter='';
+    write('> BUGGER_CORE: “¿Por qué intentas borrar lo que te protege?”', 'warn');
+    await wait(800);
+    write('> Transferencia completada. Control… cedido.');
+    await wait(600);
+    end();
+  }
+
+  function end(){
+    running = false; modal.classList.add('show');
+    const url = formsInput.value && formsInput.value.startsWith('http') ? formsInput.value : '';
+    formsBtn.href = url || '#';
+    formsBtn.setAttribute('aria-disabled', url?'false':'true');
+    formsNote.textContent = url?`Si no se abre, copia/pega: ${url}`:'Añade el enlace del Forms en el panel ADMIN (tecla A).';
+  }
+
+  function restart(){ modal.classList.remove('show'); intro.style.display='grid'; screen.innerHTML=''; }
+
+  // ======== Eventos globales ========
+  startBtn.addEventListener('click', run);
+  document.addEventListener('keydown', (e)=>{
+    if(e.code==='Space' && !running){ e.preventDefault(); run(); }
+    if(e.key==='m' || e.key==='M'){ setMute(!muted); }
+    if(e.key==='f' || e.key==='F'){ flash.classList.toggle('on'); beep(120,0.05); }
+    if(e.key==='a' || e.key==='A'){ admin.classList.toggle('show'); }
+    if(e.key==='Escape'){ accessible=!accessible; document.body.style.animation=accessible?'none':''; flash.classList.remove('on'); }
+  });
+  restartBtn.addEventListener('click', ()=>{ restart(); });
+  formsBtn.addEventListener('click', (e)=>{ if(!formsBtn.href || formsBtn.href==='#'){ e.preventDefault(); alert('Configura el enlace del Forms en ADMIN (A).'); } });
+
+  // Previene scroll con barra espaciadora fuera del input
+  window.addEventListener('keydown', e=>{ if(e.code==='Space' && document.activeElement===document.body) e.preventDefault(); });
+
+})();
+</script>
+</body>
+</html>
